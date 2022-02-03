@@ -9,6 +9,7 @@ from pypinyin import Style
 from pypinyin.contrib.neutral_tone import NeutralToneWith5Mixin
 from pypinyin.converter import DefaultConverter
 from pypinyin.core import Pinyin
+import pdb
 
 class PinyinConverter(NeutralToneWith5Mixin, DefaultConverter):
     pass
@@ -35,6 +36,7 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     mel_fpath = out_dir.joinpath("mels", "mel-%s.npy" % basename)
     wav_fpath = out_dir.joinpath("audio", "audio-%s.npy" % basename)
     if skip_existing and mel_fpath.exists() and wav_fpath.exists():
+        print("not exist exception")
         return None
 
     # Trim silence
@@ -43,6 +45,7 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     
     # Skip utterances that are too short
     if len(wav) < hparams.utterance_min_duration * hparams.sample_rate:
+        print(f"short exception: {text}")
         return None
     
     # Compute the mel spectrogram
@@ -51,6 +54,7 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     
     # Skip utterances that are too long
     if mel_frames > hparams.max_mel_frames and hparams.clip_mels_length:
+        print(f"long exception: {text}")
         return None
     
     # Write the spectrogram, embed and audio to disk
@@ -87,13 +91,13 @@ def preprocess_speaker_general(speaker_dir, out_dir: Path, skip_existing: bool, 
         wav_fpath_list = speaker_dir.glob(extension)
         # Iterate over each wav
         for wav_fpath in wav_fpath_list:
-            words = dict_info.get(wav_fpath.name.split(".")[0])
+            words = dict_info.get(wav_fpath.name[:-4])
             words = dict_info.get(wav_fpath.name) if not words else words # try with wav 
             if not words:
-                print("no wordS")
+                print(f"no wordS: {wav_fpath.name[:-4]}")
                 continue
             sub_basename = "%s_%02d" % (wav_fpath.name, 0)
             wav, text = _split_on_silences(wav_fpath, words, hparams)
             metadata.append(_process_utterance(wav, text, out_dir, sub_basename, 
-                                                skip_existing, hparams))
+                                                skip_existing, hparams))                                        
     return [m for m in metadata if m is not None]
