@@ -45,7 +45,7 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     
     # Skip utterances that are too short
     if len(wav) < hparams.utterance_min_duration * hparams.sample_rate:
-        print(f"short exception: {text}")
+#         print(f"short exception: {text}")
         return None
     
     # Compute the mel spectrogram
@@ -54,7 +54,7 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     
     # Skip utterances that are too long
     if mel_frames > hparams.max_mel_frames and hparams.clip_mels_length:
-        print(f"long exception: {text}")
+#         print(f"long exception: {text}")
         return None
     
     # Write the spectrogram, embed and audio to disk
