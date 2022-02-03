@@ -8,6 +8,7 @@ import numpy as np
 from encoder import inference as encoder
 from synthesizer.preprocess_speaker import preprocess_speaker_general
 from synthesizer.preprocess_transcript import preprocess_transcript_aishell3, preprocess_transcript_magicdata
+import pdb
 
 data_info = {
     "aidatatang_200zh": {
@@ -64,12 +65,14 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
             for v in dict_transcript:
                 if not v:
                     continue
-                v = v.strip().replace("\n","").replace("\t"," ").split(" ")
+                v = v.strip().replace("\n","").replace("\t"," ").split("$")
                 dict_info[v[0]] = " ".join(v[1:])
 
     speaker_dirs = list(chain.from_iterable(input_dir.glob("*") for input_dir in input_dirs))
     func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
                    hparams=hparams, dict_info=dict_info, no_alignments=no_alignments)
+    
+    #  func(speaker_dirs[0])
     job = Pool(n_processes).imap(func, speaker_dirs)
     for speaker_metadata in tqdm(job, dataset, len(speaker_dirs), unit="speakers"):
         for metadatum in speaker_metadata:
@@ -79,6 +82,7 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     # Verify the contents of the metadata file
     with metadata_fpath.open("r", encoding="utf-8") as metadata_file:
         metadata = [line.split("|") for line in metadata_file]
+    
     mel_frames = sum([int(m[4]) for m in metadata])
     timesteps = sum([int(m[3]) for m in metadata])
     sample_rate = hparams.sample_rate
