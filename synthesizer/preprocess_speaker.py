@@ -99,5 +99,6 @@ def preprocess_speaker_general(speaker_dir, out_dir: Path, skip_existing: bool, 
             sub_basename = "%s_%02d" % (wav_fpath.name, 0)
             wav, text = _split_on_silences(wav_fpath, words, hparams)
             metadata.append(_process_utterance(wav, text, out_dir, sub_basename, 
-                                                skip_existing, hparams))                                        
+                                                skip_existing, hparams))   
+    print(f"processed: {speaker_dir}")
     return [m for m in metadata if m is not None]
