@@ -38,7 +38,7 @@ hparams = HParams(
         tts_decoder_dims = 128,
         tts_postnet_dims = 512,
         tts_encoder_K = 5,
-        tts_lstm_dims = 512,
+        tts_lstm_dims = 1024,
         tts_postnet_K = 5,
         tts_num_highways = 4,
         tts_dropout = 0.5,
@@ -49,15 +49,15 @@ hparams = HParams(
                                                     # frame that has all values < -3.4
 
         ### Tacotron Training
-        tts_schedule = [(2,  1e-3,  10_000//4,  64),   # Progressive training schedule
-                        (2,  5e-4,  15_000//4,  64),   # (r, lr, step, batch_size)
-                        (2,  2e-4,  20_000//4,  64),   # (r, lr, step, batch_size)
-                        (2,  1e-4,  30_000//4,  64),   #
-                        (2,  5e-5,  40_000//4,  64),   #
-                        (2,  1e-5,  60_000//4,  64),   #
-                        (2,  5e-6, 160_000//4,  64),   # r = reduction factor (# of mel frames
-                        (2,  3e-6, 320_000//4,  64),   #     synthesized for each decoder iteration)
-                        (2,  1e-6, 640_000//4,  64)],  # lr = learning rate
+        tts_schedule = [(2,  1e-3,  10_000,  64),   # Progressive training schedule
+                        (2,  5e-4,  15_000,  64),   # (r, lr, step, batch_size)
+                        (2,  2e-4,  20_000,  64),   # (r, lr, step, batch_size)
+                        (2,  1e-4,  30_000,  64),   #
+                        (2,  5e-5,  40_000,  64),   #
+                        (2,  1e-5,  60_000,  64),   #
+                        (2,  5e-6, 160_000,  64),   # r = reduction factor (# of mel frames
+                        (2,  3e-6, 320_000,  64),   #     synthesized for each decoder iteration)
+                        (2,  1e-6, 640_000,  64)],  # lr = learning rate
 
         tts_clip_grad_norm = 1.0,                   # clips the gradient norm to prevent explosion - set to None if not needed
         tts_eval_interval = 500,                    # Number of steps between model evaluation (sample generation)
