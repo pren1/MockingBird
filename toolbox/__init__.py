@@ -94,11 +94,11 @@ class Toolbox:
     def setup_events(self):
         # Dataset, speaker and utterance selection
         # self.ui.browser_load_button.clicked.connect(lambda: self.load_from_browser())
-        random_func = lambda level: lambda: self.ui.populate_browser(self.datasets_root,
-                                                                     recognized_datasets,
-                                                                     level)
+        # random_func = lambda level: lambda: self.ui.populate_browser(self.datasets_root,
+        #                                                              recognized_datasets,
+        #                                                              level)
         # self.ui.random_dataset_button.clicked.connect(random_func(0))
-        self.ui.random_speaker_button.clicked.connect(random_func(1))
+        # self.ui.random_speaker_button.clicked.connect(random_func(1))
         # self.ui.random_utterance_button.clicked.connect(random_func(2))
         # self.ui.dataset_box.currentIndexChanged.connect(random_func(1))
         # self.ui.speaker_box.currentIndexChanged.connect(random_func(2))

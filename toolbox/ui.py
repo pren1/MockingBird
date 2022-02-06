@@ -1,5 +1,6 @@
-from PyQt5.QtCore import Qt, QStringListModel
+from PyQt5.QtCore import Qt, QStringListModel, pyqtSlot
 from PyQt5 import QtGui
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -300,7 +301,7 @@ class UI(QDialog):
             # speakers_root = datasets_root.joinpath(self.current_dataset_name)
             # speaker_names = [d.stem for d in speakers_root.glob("*") if d.is_dir()]
             # self.repopulate_box(self.speaker_box, speaker_names, random)
-            self.repopulate_box(self.speaker_box, ["嘉然", "向晚", "贝拉", "乃琳", "珈乐"], random)
+            self.repopulate_box(self.speaker_box, ["嘉然", "向晚", "贝拉", "乃琳", "珈乐"], False)
     
         # # Select a random utterance
         # if level <= 2:
@@ -421,6 +422,11 @@ class UI(QDialog):
         self.export_wav_button.setDisabled(True)
         [self.log("") for _ in range(self.max_log_lines)]
 
+    @pyqtSlot(int)
+    def onCurrentIndexChanged(self, ix):
+        print(ix)
+        self.image_label.setPixmap(self.pixmap_list[ix].scaled(self.image_label.size(), Qt.KeepAspectRatio))
+
     def __init__(self):
         ## Initialize the application
         self.app = QApplication(sys.argv)
@@ -466,9 +472,11 @@ class UI(QDialog):
         # self.projections_layout.addWidget(self.clear_button)
 
         notification = QLabel("使用声明：\n"
-                              "此软件仅为学习用途，请勿滥用。\n"
-                              "一切音声版权归asoul官方所有。\n"
-                              "软件本体修改自MockingBird，MIT协议。\n")
+                              "此软件仅为学习研究用途，请勿滥用。\n"
+                              "作为一名负责任的AU，您不应当\n"
+                              "将此软件发送给网友，或在互联网上传播。\n"
+                              "软件本体修改自MockingBird，MIT协议。\n"
+                              "一切生成的音声版权归asoul官方所有。\n")
         notification.setAlignment(Qt.AlignCenter)
         browser_layout.addWidget(notification)
         ## Browser
@@ -486,11 +494,29 @@ class UI(QDialog):
         # self.random_dataset_button = QPushButton("Random")
         # source_layout.addWidget(self.random_dataset_button, i, 2)
         # i += 1
+
+        self.image_label = QLabel(self)
+
+        self.pixmap_list = []
+        self.pixmap_list.append(QPixmap('./toolbox/assets/diana.webp'))
+        self.pixmap_list.append(QPixmap('./toolbox/assets/AvA.webp'))
+        self.pixmap_list.append(QPixmap('./toolbox/assets/Bira.webp'))
+        self.pixmap_list.append(QPixmap('./toolbox/assets/Queen.webp'))
+        self.pixmap_list.append(QPixmap('./toolbox/assets/Carlo.webp'))
+
+        self.image_label.resize(256, 256)
+        self.image_label.setAlignment(Qt.AlignCenter)
+        # label.setPixmap(pixmap)
+        self.image_label.setPixmap(self.pixmap_list[0].scaled(self.image_label.size(), Qt.KeepAspectRatio))
+        source_layout.addWidget(self.image_label)
+
         self.speaker_box = QComboBox()
         source_layout.addWidget(QLabel("Speaker(说话者)"))
         source_layout.addWidget(self.speaker_box)
-        self.random_speaker_button = QPushButton("Random")
-        source_layout.addWidget(self.random_speaker_button)
+        # self.random_speaker_button = QPushButton("Random")
+        # source_layout.addWidget(self.random_speaker_button)
+        self.speaker_box.currentIndexChanged.connect(self.onCurrentIndexChanged)
+
         # i += 1
         # self.utterance_box = QComboBox()
         # source_layout.addWidget(QLabel("Utterance(音频):"), i, 0)
@@ -651,9 +677,9 @@ class UI(QDialog):
         gen_layout.addWidget(model_groupbox)
 
         self.log_window = QLabel()
-        # self.log_window.setWordWrap(True)
+        self.log_window.setWordWrap(True)
         # self.log_window.setStyleSheet("border: 1px solid black;")
-        self.log_window.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
+        # self.log_window.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
         model_layout.addWidget(self.log_window)
         self.logs = []
 
@@ -664,7 +690,7 @@ class UI(QDialog):
 
 
         ## Set the size of the window and of the elements
-        max_size = QDesktopWidget().availableGeometry(self).size() * 0.2
+        max_size = QDesktopWidget().availableGeometry(self).size() * 0.3
         self.resize(max_size)
         
         ## Finalize the display
