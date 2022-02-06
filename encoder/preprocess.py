@@ -4,7 +4,7 @@ from encoder.config import librispeech_datasets, anglophone_nationalites
 from datetime import datetime
 from encoder import audio
 from pathlib import Path
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import numpy as np
 
 
@@ -86,7 +86,7 @@ def _preprocess_speaker_dirs(speaker_dirs, dataset_name, datasets_root, out_dir,
         
         # Gather all audio files for that speaker recursively
         sources_file = sources_fpath.open("a" if skip_existing else "w")
-        for in_fpath in speaker_dir.glob("**/*.%s" % extension):
+        for in_fpath in tqdm(speaker_dir.glob("**/*.%s" % extension):
             # Check if the target output file already exists
             out_fname = "_".join(in_fpath.relative_to(speaker_dir).parts)
             out_fname = out_fname.replace(".%s" % extension, ".npy")

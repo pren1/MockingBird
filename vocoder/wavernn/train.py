@@ -14,7 +14,7 @@ import torch
 
 
 def train(run_id: str, syn_dir: Path, voc_dir: Path, models_dir: Path, ground_truth: bool,
-          save_every: int, backup_every: int, force_restart: bool):
+          save_every: int, backup_every: int, force_restart: bool, vocoder_type: str, config: str):
     # Check to make sure the hop length is correctly factorised
     assert np.cumprod(hp.voc_upsample_factors)[-1] == hp.hop_length
     

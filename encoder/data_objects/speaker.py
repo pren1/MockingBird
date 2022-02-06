@@ -1,6 +1,7 @@
 from encoder.data_objects.random_cycler import RandomCycler
 from encoder.data_objects.utterance import Utterance
 from pathlib import Path
+import pdb
 
 # Contains the set of utterances of a single speaker
 class Speaker:
@@ -12,7 +13,17 @@ class Speaker:
         
     def _load_utterances(self):
         with self.root.joinpath("_sources.txt").open("r") as sources_file:
-            sources = [l.split(",") for l in sources_file]
+            sources = []
+            for l in sources_file:
+              if len(l.split(",")) == 2:
+                sources.append(l.split(","))
+            
+            # sources = [l.split(",") for l in sources_file]
+        
+        # for sig in sources:
+        #   if len(sig) != 2:
+        #     print(sig)
+
         sources = {frames_fname: wave_fpath for frames_fname, wave_fpath in sources}
         self.utterances = [Utterance(self.root.joinpath(f), w) for f, w in sources.items()]
         self.utterance_cycler = RandomCycler(self.utterances)
