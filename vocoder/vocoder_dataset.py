@@ -36,7 +36,7 @@ class VocoderDataset(Dataset):
         # Fix for missing padding   # TODO: settle on whether this is any useful
         r_pad =  (len(wav) // hp.hop_length + 1) * hp.hop_length - len(wav)
         wav = np.pad(wav, (0, r_pad), mode='constant')
-        assert len(wav) >= mel.shape[1] * hp.hop_length
+#         assert len(wav) >= mel.shape[1] * hp.hop_length
         wav = wav[:mel.shape[1] * hp.hop_length]
         assert len(wav) % hp.hop_length == 0
         
