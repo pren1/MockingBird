@@ -74,7 +74,7 @@ class Toolbox:
             self.trim_silences = False
 
         # open a file, where you stored the pickled data
-        file = open('E:/MockingBird-main/MockingBird-main/embedding_as.pkl', 'rb')
+        file = open('embedding_as.pkl', 'rb')
         # dump information to that file
         self.embedding_dict = pickle.load(file)
         # close the file
