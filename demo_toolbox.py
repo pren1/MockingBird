@@ -4,7 +4,12 @@ from utils.argutils import print_args
 from utils.modelutils import check_model_paths
 import argparse
 import os
+import sklearn.utils._typedefs
+import sklearn.neighbors._partition_nodes
+import librosa
 
+# pyinstaller -D -w -i ./toolbox/assets/diana.ico ./demo_toolbox.py --additional-hooks=extra-hooks --additional-hooks-dir "E
+# :\MockingBird-main\MockingBird-main/extra-hooks"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -15,11 +20,11 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--datasets_root", type=Path, help= \
         "Path to the directory containing your datasets. See toolbox/__init__.py for a list of "
         "supported datasets.", default=None)
-    parser.add_argument("-e", "--enc_models_dir", type=Path, default="encoder/saved_models", 
+    parser.add_argument("-e", "--enc_models_dir", type=Path, default="E:/MockingBird-main/MockingBird-main/encoder/saved_models",
                         help="Directory containing saved encoder models")
-    parser.add_argument("-s", "--syn_models_dir", type=Path, default="synthesizer/saved_models", 
+    parser.add_argument("-s", "--syn_models_dir", type=Path, default="E:/MockingBird-main/MockingBird-main/synthesizer/saved_models",
                         help="Directory containing saved synthesizer models")
-    parser.add_argument("-v", "--voc_models_dir", type=Path, default="vocoder/saved_models", 
+    parser.add_argument("-v", "--voc_models_dir", type=Path, default="E:/MockingBird-main/MockingBird-main/vocoder/saved_models",
                         help="Directory containing saved vocoder models")
     parser.add_argument("--cpu", action="store_true", help=\
         "If True, processing is done on CPU, even when a GPU is available.")

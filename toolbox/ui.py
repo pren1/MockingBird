@@ -430,13 +430,16 @@ class UI(QDialog):
     def __init__(self):
         ## Initialize the application
         self.app = QApplication(sys.argv)
+
         super().__init__(None)
         self.setWindowTitle("MockingBird GUI: Asoul voice generator")
         self.setWindowIcon(QtGui.QIcon('toolbox\\assets\\mb.png'))
         self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
-        
-        
+
+
+        self.setStyleSheet('background-color: #ffe7f1;')
+
         ## Main layouts
         # Root
         root_layout = QGridLayout()

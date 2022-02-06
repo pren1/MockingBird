@@ -13,4 +13,4 @@ def check_model_paths(encoder_path: Path, synthesizer_path: Path, vocoder_path: 
     print("********************************************************************************")
     print("Error: Model files not found. Please download the models")
     print("********************************************************************************\n")
-    quit(-1)
+    # quit(-1)
