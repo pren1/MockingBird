@@ -1,10 +1,11 @@
+import pdb
+
 from PyQt5.QtCore import Qt, QStringListModel, pyqtSlot
 from PyQt5 import QtGui
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import *
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
+from PyQt5.QtWidgets import QFileDialog, QLabel, QDialog, QApplication, \
+    QGridLayout, QVBoxLayout, QGroupBox, QDesktopWidget, QProgressBar, QSlider, \
+    QCheckBox, QPushButton, QLineEdit, QPlainTextEdit, QComboBox
 from encoder.inference import plot_embedding_as_heatmap
 from toolbox.utterance import Utterance
 from pathlib import Path
@@ -14,11 +15,10 @@ import soundfile as sf
 import numpy as np
 # from sklearn.manifold import TSNE         # You can try with TSNE if you like, I prefer UMAP 
 from time import sleep
-import umap
+# import umap
 import sys
 from warnings import filterwarnings, warn
 filterwarnings("ignore")
-
 
 colormap = np.array([
     [0, 127, 70],
@@ -88,49 +88,49 @@ class UI(QDialog):
     #     if which != "current":
     #         self.vocode_button.setDisabled(spec is None)
 
-    def draw_umap_projections(self, utterances: Set[Utterance]):
-        self.umap_ax.clear()
-
-        speakers = np.unique([u.speaker_name for u in utterances])
-        colors = {speaker_name: colormap[i] for i, speaker_name in enumerate(speakers)}
-        embeds = [u.embed for u in utterances]
-
-        # Display a message if there aren't enough points
-        if len(utterances) < self.min_umap_points:
-            # self.umap_ax.text(.5, .5, "Add %d more points to\ngenerate the projections" %
-            #                   (self.min_umap_points - len(utterances)),
-            #                   horizontalalignment='center', fontsize=15)
-            self.umap_ax.text(.5, .5, "Not available... We don't really need this",
-                              horizontalalignment='center', fontsize=15)
-            self.umap_ax.set_title("")
-            
-        # Compute the projections
-        else:
-            if not self.umap_hot:
-                self.log(
-                    "Drawing UMAP projections for the first time, this will take a few seconds.")
-                self.umap_hot = True
-            
-            reducer = umap.UMAP(int(np.ceil(np.sqrt(len(embeds)))), metric="cosine")
-            # reducer = TSNE()
-            projections = reducer.fit_transform(embeds)
-            
-            speakers_done = set()
-            for projection, utterance in zip(projections, utterances):
-                color = colors[utterance.speaker_name]
-                mark = "x" if "_gen_" in utterance.name else "o"
-                label = None if utterance.speaker_name in speakers_done else utterance.speaker_name
-                speakers_done.add(utterance.speaker_name)
-                self.umap_ax.scatter(projection[0], projection[1], c=[color], marker=mark,
-                                     label=label)
-            # self.umap_ax.set_title("UMAP projections")
-            self.umap_ax.legend(prop={'size': 10})
-
-        # Draw the plot
-        self.umap_ax.set_aspect("equal", "datalim")
-        self.umap_ax.set_xticks([])
-        self.umap_ax.set_yticks([])
-        self.umap_ax.figure.canvas.draw()
+    # def draw_umap_projections(self, utterances: Set[Utterance]):
+    #     self.umap_ax.clear()
+    #
+    #     speakers = np.unique([u.speaker_name for u in utterances])
+    #     colors = {speaker_name: colormap[i] for i, speaker_name in enumerate(speakers)}
+    #     embeds = [u.embed for u in utterances]
+    #
+    #     # Display a message if there aren't enough points
+    #     if len(utterances) < self.min_umap_points:
+    #         # self.umap_ax.text(.5, .5, "Add %d more points to\ngenerate the projections" %
+    #         #                   (self.min_umap_points - len(utterances)),
+    #         #                   horizontalalignment='center', fontsize=15)
+    #         self.umap_ax.text(.5, .5, "Not available... We don't really need this",
+    #                           horizontalalignment='center', fontsize=15)
+    #         self.umap_ax.set_title("")
+    #
+    #     # Compute the projections
+    #     else:
+    #         if not self.umap_hot:
+    #             self.log(
+    #                 "Drawing UMAP projections for the first time, this will take a few seconds.")
+    #             self.umap_hot = True
+    #
+    #         reducer = umap.UMAP(int(np.ceil(np.sqrt(len(embeds)))), metric="cosine")
+    #         # reducer = TSNE()
+    #         projections = reducer.fit_transform(embeds)
+    #
+    #         speakers_done = set()
+    #         for projection, utterance in zip(projections, utterances):
+    #             color = colors[utterance.speaker_name]
+    #             mark = "x" if "_gen_" in utterance.name else "o"
+    #             label = None if utterance.speaker_name in speakers_done else utterance.speaker_name
+    #             speakers_done.add(utterance.speaker_name)
+    #             self.umap_ax.scatter(projection[0], projection[1], c=[color], marker=mark,
+    #                                  label=label)
+    #         # self.umap_ax.set_title("UMAP projections")
+    #         self.umap_ax.legend(prop={'size': 10})
+    #
+    #     # Draw the plot
+    #     self.umap_ax.set_aspect("equal", "datalim")
+    #     self.umap_ax.set_xticks([])
+    #     self.umap_ax.set_yticks([])
+    #     self.umap_ax.figure.canvas.draw()
 
     def save_audio_file(self, wav, sample_rate):        
         dialog = QFileDialog()
@@ -432,13 +432,15 @@ class UI(QDialog):
         self.app = QApplication(sys.argv)
 
         super().__init__(None)
-        self.setWindowTitle("MockingBird GUI: Asoul voice generator")
-        self.setWindowIcon(QtGui.QIcon('toolbox\\assets\\mb.png'))
+        self.setWindowTitle("MockingBird GUI: Asoul version")
+        self.setWindowIcon(QtGui.QIcon('toolbox\\assets\\diana.webp'))
         self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
-
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.setStyleSheet('background-color: #ffe7f1;')
+
+        color_string = "#E7FFF5"
 
         ## Main layouts
         # Root
@@ -474,11 +476,32 @@ class UI(QDialog):
         # self.clear_button = QPushButton("Clear")
         # self.projections_layout.addWidget(self.clear_button)
 
+        # 使用声明, 此软件仅为学习研究用途，请勿滥用哦。
+        # 作为一名负责任的A - 友，您不应当将此软件在互联网上传播。
+        # 一切生成的音声版权归A - Soul官方所有。
+
+        # 大家晚上好，我们是A-Soul!
+        # 这里是嘉然，你们也可以叫我蒂娜。我是你们最甜甜甜的小草莓
+        # 啊对对对，桥洞底下盖小被。希望你对你的人生也是这个态度。到时候人家问你，哎呀嘉心糖怎么屁用没有呀，啊对对对，对就完了呗。
+
+        # 这里是A-soul的幽默钻头向晚，今天也要一起轻松快乐的看直播哦！
+        # 是谁在低吟浅唱枝江夏天，阳光下海水，反射向晚的笑脸。
+
+        # 我是A-Soul的舞蹈担当以及队长贝拉，你们也可以叫我的英文名字！
+        # 想牛不能牛才最寂寞，没说完勇敢只剩牛牛！
+        # 你们不要再刷勇敢牛牛啦，我两眼一黑啦！
+
+        # 她总是最后一秒才到达，从不肯半分钟的加。一周三次直播饥饿玩法，偶尔孩给自己放个架
+        # 希望能和乃琪琳们，永不疲惫的，双向奔赴。
+
+        # 王珈乐可爱捏，我大哥绝绝子！
+        # 太土了，我大哥决明子！
+
         notification = QLabel("使用声明：\n"
                               "此软件仅为学习研究用途，请勿滥用。\n"
-                              "作为一名负责任的AU，您不应当\n"
-                              "将此软件发送给网友，或在互联网上传播。\n"
-                              "软件本体修改自MockingBird，MIT协议。\n"
+                              "作为一名负责任的AU，\n"
+                              "您不应当将此软件在互联网上传播。\n"
+                              "软件本体修改自MockingBird(MIT协议)。\n"
                               "一切生成的音声版权归asoul官方所有。\n")
         notification.setAlignment(Qt.AlignCenter)
         browser_layout.addWidget(notification)
@@ -515,6 +538,7 @@ class UI(QDialog):
 
         self.speaker_box = QComboBox()
         source_layout.addWidget(QLabel("Speaker(说话者)"))
+        self.speaker_box.setStyleSheet(f"background-color : {color_string}")
         source_layout.addWidget(self.speaker_box)
         # self.random_speaker_button = QPushButton("Random")
         # source_layout.addWidget(self.random_speaker_button)
@@ -558,30 +582,39 @@ class UI(QDialog):
         # Model and audio output selection
         self.encoder_box = QComboBox()
         model_layout.addWidget(QLabel("Encoder:"))
+        self.encoder_box.setStyleSheet(f"background-color : {color_string}")
         model_layout.addWidget(self.encoder_box)
         self.synthesizer_box = QComboBox()
         model_layout.addWidget(QLabel("Synthesizer:"))
+        self.synthesizer_box.setStyleSheet(f"background-color : {color_string}")
         model_layout.addWidget(self.synthesizer_box)
         self.vocoder_box = QComboBox()
         model_layout.addWidget(QLabel("Vocoder:"))
+        self.vocoder_box.setStyleSheet(f"background-color : {color_string}")
         model_layout.addWidget(self.vocoder_box)
-        
 
         #Replay & Save Audio
         i = 0
         output_layout.addWidget(QLabel("<b>Toolbox Output:</b>"), i, 0)
+        i += 1
         self.waves_cb = QComboBox()
         self.waves_cb_model = QStringListModel()
         self.waves_cb.setModel(self.waves_cb_model)
+        self.waves_cb.setStyleSheet(f"background-color : {color_string}")
         self.waves_cb.setToolTip("Select one of the last generated waves in this section for replaying or exporting")
-        output_layout.addWidget(self.waves_cb, i, 1)
+        output_layout.addWidget(self.waves_cb, i, 0, 1, 4)
+        i += 1
         self.replay_wav_button = QPushButton("Replay")
+        self.replay_wav_button.setStyleSheet(f"background-color : {color_string}")
         self.replay_wav_button.setToolTip("Replay last generated vocoder")
-        output_layout.addWidget(self.replay_wav_button, i, 2)
+        output_layout.addWidget(self.replay_wav_button, i, 0, 1, 2)
         self.export_wav_button = QPushButton("Export")
+        self.export_wav_button.setStyleSheet(f"background-color : {color_string}")
         self.export_wav_button.setToolTip("Save last generated vocoder audio in filesystem as a wav file")
-        output_layout.addWidget(self.export_wav_button, i, 3)
+        output_layout.addWidget(self.export_wav_button, i, 2, 1, 2)
         self.audio_out_devices_cb=QComboBox()
+        self.audio_out_devices_cb.setStyleSheet(f"background-color : {color_string}")
+
         # i += 1
         # output_layout.addWidget(QLabel("<b>Audio Output</b>"), i, 0)
         # output_layout.addWidget(self.audio_out_devices_cb, i, 1)
@@ -607,17 +640,19 @@ class UI(QDialog):
         
         ## Generation
         self.text_prompt = QPlainTextEdit(default_text)
+        # self.text_prompt.setStyleSheet(f"background-color : {color_string}")
         gen_layout.addWidget(self.text_prompt, stretch=1)
         
         self.generate_button = QPushButton("Synthesize and vocode")
+        self.generate_button.setStyleSheet(f"background-color : {color_string}")
         gen_layout.addWidget(self.generate_button)
         
-        layout = QHBoxLayout()
-        self.synthesize_button = QPushButton("Synthesize only")
-        layout.addWidget(self.synthesize_button)
-        self.vocode_button = QPushButton("Vocode only")
-        layout.addWidget(self.vocode_button)
-        gen_layout.addLayout(layout)
+        # layout = QHBoxLayout()
+        # self.synthesize_button = QPushButton("Synthesize only")
+        # layout.addWidget(self.synthesize_button)
+        # self.vocode_button = QPushButton("Vocode only")
+        # layout.addWidget(self.vocode_button)
+        # gen_layout.addLayout(layout)
 
         layout_seed = QGridLayout()
         self.random_seed_checkbox = QCheckBox("Random seed:")
@@ -681,12 +716,14 @@ class UI(QDialog):
 
         self.log_window = QLabel()
         self.log_window.setWordWrap(True)
+        # self.log_window.setStyleSheet(f"background-color : {color_string}")
         # self.log_window.setStyleSheet("border: 1px solid black;")
         # self.log_window.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
         model_layout.addWidget(self.log_window)
         self.logs = []
 
         gen_layout.addWidget(QLabel("<b>Audio Output</b>"))
+
         gen_layout.addWidget(self.audio_out_devices_cb)
 
         gen_layout.addStretch()

@@ -79,7 +79,6 @@ class Toolbox:
         self.embedding_dict = pickle.load(file)
         # close the file
         file.close()
-
         # Initialize the events and the interface
         self.ui = UI()
         self.style_idx = 0
@@ -133,8 +132,8 @@ class Toolbox:
         # Generation
         func = lambda: self.synthesize() or self.vocode()
         self.ui.generate_button.clicked.connect(func)
-        self.ui.synthesize_button.clicked.connect(self.synthesize)
-        self.ui.vocode_button.clicked.connect(self.vocode)
+        # self.ui.synthesize_button.clicked.connect(self.synthesize)
+        # self.ui.vocode_button.clicked.connect(self.vocode)
         self.ui.random_seed_checkbox.clicked.connect(self.update_seed_textbox)
 
         # UMAP legend
@@ -236,6 +235,7 @@ class Toolbox:
             self.init_synthesizer()
 
         texts = self.ui.text_prompt.toPlainText().split("\n")
+        self.wav_cur_name = texts[0]
         punctuation = '！，。、,' # punctuate and split/clean text
         processed_texts = []
         for text in texts:
@@ -247,8 +247,16 @@ class Toolbox:
         print(self.ui.speaker_box.currentText())
         # embed = self.ui.selected_utterance.embed
         embed = self.embedding_dict[self.ui.speaker_box.currentText()]
+
+        avg_embed = []
+        for sig in self.embedding_dict:
+            avg_embed.append(self.embedding_dict[sig])
+
+        avg_embed = np.asarray(avg_embed)
+        avg_embed = np.mean(avg_embed, 0)
+
         # print(f"embed: {embed}")
-        embeds = [embed] * len(texts)
+        embeds = [avg_embed] * len(texts)
         min_token = int(self.ui.token_slider.value())
         specs = self.synthesizer.synthesize_spectrograms(texts, embeds, style_idx=-1,
                                                          min_stop_token=min_token, steps=int(self.ui.length_slider.value())*200)
@@ -311,8 +319,8 @@ class Toolbox:
 
         # Name it (history displayed in combobox)
         # TODO better naming for the combobox items?
-        wav_name = str(self.waves_count + 1)
-
+        # wav_name = str(self.waves_count + 1)
+        wav_name = f"{speaker_name}_{self.wav_cur_name}"
         #Update waves combobox
         self.waves_count += 1
         if self.waves_count > MAX_WAVES:
