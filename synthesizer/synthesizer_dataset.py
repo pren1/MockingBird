@@ -22,9 +22,13 @@ class SynthesizerDataset(Dataset):
         self.metadata = metadata
         self.hparams = hparams
         
-        # a_file = open("data.pkl", "rb")
-        # self.embed_dict = pickle.load(a_file)
-        # a_file.close()
+        a_file = open("data.pkl", "rb")
+        self.embed_dict = pickle.load(a_file)
+        a_file.close()
+        
+        b_file = open("embedding_as.pkl", "rb")
+        self.res_embedding_dict = pickle.load(b_file)
+        b_file.close()
 
         # print(len(self.embed_dict))
 
@@ -40,11 +44,14 @@ class SynthesizerDataset(Dataset):
         mel = np.load(mel_path).T.astype(np.float32)
         
         # Load the embed
-        embed = np.load(embed_path)
-        # cur_name = embed_path.as_posix().split("/")[-1][6:].split(".")[0]
-
-        # print(embed_path)
-        # print(cur_name)
+#         embed = np.load(embed_path)
+        cur_name = embed_path.as_posix().split("/")[-1].split(".")[0][6:]
+        target_name = self.embed_dict[cur_name]
+        
+        embed = self.res_embedding_dict[target_name]
+        
+        # print(f"{embed_path.as_posix()}, {cur_name}, {target_name}")
+        # print(target_name)
         # Get the text and clean it
         text = text_to_sequence(self.samples_texts[index], self.hparams.tts_cleaner_names)
         
