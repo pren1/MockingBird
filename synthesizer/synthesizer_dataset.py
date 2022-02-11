@@ -22,11 +22,11 @@ class SynthesizerDataset(Dataset):
         self.metadata = metadata
         self.hparams = hparams
         
-        a_file = open("data.pkl", "rb")
-        self.embed_dict = pickle.load(a_file)
-        a_file.close()
+        # a_file = open("data.pkl", "rb")
+        # self.embed_dict = pickle.load(a_file)
+        # a_file.close()
 
-        print(len(self.embed_dict))
+        # print(len(self.embed_dict))
 
         print("Found %d samples" % len(self.samples_fpaths))
     
@@ -40,28 +40,11 @@ class SynthesizerDataset(Dataset):
         mel = np.load(mel_path).T.astype(np.float32)
         
         # Load the embed
-        # embed = np.load(embed_path)
-        cur_name = embed_path.as_posix().split("/")[-1][6:].split(".")[0]
+        embed = np.load(embed_path)
+        # cur_name = embed_path.as_posix().split("/")[-1][6:].split(".")[0]
 
         # print(embed_path)
         # print(cur_name)
-        if (cur_name in self.embed_dict):
-          embed_res = self.embed_dict[cur_name]
-          if embed_res == "嘉然":
-            embed = np.asarray([0.15] * 256)
-          elif embed_res == "向晚":
-            embed = np.asarray([0.35] * 256)
-          elif embed_res == "贝拉":
-            embed = np.asarray([0.55] * 256)
-          elif embed_res == "珈乐":
-            embed = np.asarray([0.75] * 256)
-          elif embed_res == "乃琳":
-            embed = np.asarray([0.95] * 256)
-          else:
-            print(f"Fatal error: {embed_res}")
-        else:
-          embed = np.asarray([0.15] * 256)
-
         # Get the text and clean it
         text = text_to_sequence(self.samples_texts[index], self.hparams.tts_cleaner_names)
         
