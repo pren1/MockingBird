@@ -10,6 +10,7 @@ from pypinyin.contrib.neutral_tone import NeutralToneWith5Mixin
 from pypinyin.converter import DefaultConverter
 from pypinyin.core import Pinyin
 import pdb
+import soundfile as sf
 
 class PinyinConverter(NeutralToneWith5Mixin, DefaultConverter):
     pass
@@ -18,7 +19,7 @@ pinyin = Pinyin(PinyinConverter()).pinyin
 
 
 def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str, 
-                      skip_existing: bool, hparams):
+                      skip_existing: bool, hparams, speaker_name):
     ## FOR REFERENCE:
     # For you not to lose your head if you ever wish to change things here or implement your own
     # synthesizer.
@@ -34,10 +35,14 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
     
     # Skip existing utterances if needed
     mel_fpath = out_dir.joinpath("mels", "mel-%s.npy" % basename)
-    wav_fpath = out_dir.joinpath("audio", "audio-%s.npy" % basename)
-    if skip_existing and mel_fpath.exists() and wav_fpath.exists():
-        print("not exist exception")
-        return None
+    speaker_path = out_dir.joinpath("audio", speaker_name)
+    speaker_path.mkdir(exist_ok=True)
+    
+    wav_fpath = speaker_path.joinpath("%s" % basename)
+    # print(wav_fpath)
+    # if skip_existing and mel_fpath.exists() and wav_fpath.exists():
+    #     print("not exist exception")
+    #     return None
 
     # Trim silence
     if hparams.trim_silence:
@@ -57,9 +62,11 @@ def _process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
 #         print(f"long exception: {text}")
         return None
     
-    # Write the spectrogram, embed and audio to disk
-    np.save(mel_fpath, mel_spectrogram.T, allow_pickle=False)
-    np.save(wav_fpath, wav, allow_pickle=False)
+    # # Write the spectrogram, embed and audio to disk
+    # np.save(mel_fpath, mel_spectrogram.T, allow_pickle=False)
+    # np.save(wav_fpath, wav, allow_pickle=False)
+
+    sf.write(wav_fpath, wav, hparams.sample_rate)
     
     # Return a tuple describing this training example
     return wav_fpath.name, mel_fpath.name, "embed-%s.npy" % basename, len(wav), mel_frames, text
@@ -96,9 +103,10 @@ def preprocess_speaker_general(speaker_dir, out_dir: Path, skip_existing: bool, 
             if not words:
                 print(f"no wordS: {wav_fpath.name[:-4]}")
                 continue
-            sub_basename = "%s_%02d" % (wav_fpath.name, 0)
+            sub_basename = wav_fpath.name
             wav, text = _split_on_silences(wav_fpath, words, hparams)
+            # print(f"current text: {text}")
             metadata.append(_process_utterance(wav, text, out_dir, sub_basename, 
-                                                skip_existing, hparams))   
+                                                skip_existing, hparams, speaker_name = speaker_dir.as_posix().split("/")[-1]))   
     print(f"processed: {speaker_dir}")
     return [m for m in metadata if m is not None]
