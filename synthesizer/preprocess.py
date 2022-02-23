@@ -46,7 +46,7 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     assert all(input_dir.exists() for input_dir in input_dirs)
     
     # Create the output directories for each output file type
-    out_dir.joinpath("mels").mkdir(exist_ok=True)
+    # out_dir.joinpath("mels").mkdir(exist_ok=True)
     out_dir.joinpath("audio").mkdir(exist_ok=True)
     
     # Create a metadata file
@@ -67,7 +67,6 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
                     continue
                 v = v.strip().replace("\n","").replace("\t"," ").split("$")
                 dict_info[v[0]] = " ".join(v[1:])
-
     speaker_dirs = list(chain.from_iterable(input_dir.glob("*") for input_dir in input_dirs))
     func = partial(dataset_info["speak_func"], out_dir=out_dir, skip_existing=skip_existing, 
                    hparams=hparams, dict_info=dict_info, no_alignments=no_alignments)
@@ -83,12 +82,12 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path, n_processes: int,
     with metadata_fpath.open("r", encoding="utf-8") as metadata_file:
         metadata = [line.split("|") for line in metadata_file]
     
-    mel_frames = sum([int(m[4]) for m in metadata])
+    # mel_frames = sum([int(m[4]) for m in metadata])
     timesteps = sum([int(m[3]) for m in metadata])
     sample_rate = hparams.sample_rate
     hours = (timesteps / sample_rate) / 3600
-    print("The dataset consists of %d utterances, %d mel frames, %d audio timesteps (%.2f hours)." %
-          (len(metadata), mel_frames, timesteps, hours))
+    print("The dataset consists of %d utterances, %d audio timesteps (%.2f hours)." %
+          (len(metadata),timesteps, hours))
     print("Max input length (text chars): %d" % max(len(m[5]) for m in metadata))
     print("Max mel frames length: %d" % max(int(m[4]) for m in metadata))
     print("Max audio timesteps length: %d" % max(int(m[3]) for m in metadata))
